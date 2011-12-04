@@ -1,0 +1,2027 @@
+<MvCOMMENT>
+Filename: mailchimp.mv
+Date:8/23/2010
+Author: Brennan Heyde
+bheyde@mivamerchant.com
+</MvCOMMENT>
+
+
+<MvFUNCTION NAME = "Module_Description" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
+	<MvASSIGN NAME = "l.module:code"		VALUE = "mailchimp">
+	<MvASSIGN NAME = "l.module:name"		VALUE = "MailChimp - Newsletter Signup">
+	<MvASSIGN NAME = "l.module:provider"	VALUE = "Miva Merchant">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "5.5001">
+	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "5.00">
+	<MvASSIGN NAME = "l.module:features"	VALUE = "component,util,vis_util,fulfill,data_store">
+</MvFUNCTION>
+	
+
+<MvFUNCTION NAME = "Module_Install" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Module_Upgrade" PARAMETERS = "module var, version" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Module_Uninstall" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>    
+
+
+<MvFUNCTION NAME = "Module_Upgrade_Store" PARAMETERS = "module var, version" STANDARDOUTPUTLEVEL = "">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Module_Install_Store" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
+
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'CREATE TABLE ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data
+						  (
+
+							api_key		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 60 )			$ ',
+							list_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 )			$ ',
+							head_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )		$ ',
+							css_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )		$ ',
+							js_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )		$ ',
+							check_id	' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )		$ ',
+							text_id		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_NUMBER( 0, 0 )		$ ',
+							loading		' $ [ g.Module_Library_Native_DBAPI ].DB_Type_CHAR( 255 )			$ '
+							
+							
+						
+						  )' }">
+
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( '#Error#', g.MvQUERY_Error ) }">
+	</MvIF>
+
+
+	<MvCOMMENT> *************** CREATE ITEMS *************** </MvCOMMENT>
+	<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].Item_Load_Code( 'mailchimp', l.item ) }">
+		<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_Item( 'mailchimp', l.module:code ) }">
+			 <MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00001', 'Unable to create item mailchimp' ) }">
+		</MvIF>
+	</MvIF>
+
+	<MvCOMMENT> *************** ASSIGN TO PAGES SFNT, PROD, CTGY and OCST *************** </MvCOMMENT>
+	<MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'SFNT', l.page ) }">
+		<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Assign_Item( l.page, 'mailchimp' ) }">
+			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00002', 'Error assigning itemcode to SFNT page' ) }">
+		</MvIF>
+	</MvIF>
+
+	<MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'PROD', l.page ) }">
+		<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Assign_Item( l.page, 'mailchimp' ) }">
+			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00003', 'Error assigning itemcode to PROD page' ) }">
+		</MvIF>
+	</MvIF>
+
+	<MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'CTGY', l.page ) }">
+		<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Assign_Item( l.page, 'mailchimp' ) }">
+			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00004', 'Error assigning itemcode to CTGY page' ) }">
+		</MvIF>
+	</MvIF>
+
+	<MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'OCST', l.page ) }">
+		<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Assign_Item( l.page, 'mailchimp' ) }">
+			<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00005', 'Error assigning itemcode to OCST page' ) }">
+		</MvIF>
+	</MvIF>
+	
+
+<MvCOMMENT>Set Default Templates</MvCOMMENT>
+
+	<MvASSIGN NAME = "l.default_templates:head" VALUE = "{ HEADTAG_Template() }">
+
+	<MvASSIGN NAME = "l.template:head_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( l.default_templates:head, l.null, 'mailchimp-head.mvc' ) }">
+	<MvIF EXPR = "{ l.template:head_id EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+
+	<MvASSIGN NAME = "l.default_templates:css" VALUE = "{ CSS_Template() }">
+
+	<MvASSIGN NAME = "l.template:css_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( l.default_templates:css, l.null, 'mailchimp-css.mvc' ) }">
+	<MvIF EXPR = "{ l.template:css_id EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.default_templates:js" VALUE = "{ JS_Template() }">
+
+	<MvASSIGN NAME = "l.template:js_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( l.default_templates:js, l.null, 'mailchimp-js.mvc' ) }">
+	<MvIF EXPR = "{ l.template:js_id EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.default_templates:text" VALUE = "{ TEXTBOX_Template() }">
+
+	<MvASSIGN NAME = "l.template:text_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( l.default_templates:text, l.null, 'mailchimp-text.mvc' ) }">
+	<MvIF EXPR = "{ l.template:text_id EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.default_templates:check" VALUE = "{ CHECKBOX_Template() }">
+
+	<MvASSIGN NAME = "l.template:check_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( l.default_templates:check, l.null, 'mailchimp-check.mvc' ) }">
+	<MvIF EXPR = "{ l.template:check_id EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+
+	<MvIF EXPR = "{ NOT MAILCHIMP_Insert( l.template ) }">
+		<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvCOMMENT>Create css and js directories if they dont exist</MvCOMMENT>
+	<MvASSIGN NAME="l.dir" VALUE="{fisdir( g.Domain:MOD_ROOT $ 'js' )}">
+	<MvIF EXPR="{ NOT l.dir }">
+		<MvASSIGN NAME="l.mkdir" VALUE="{ smkdir( g.Domain:MOD_ROOT $ 'js' ) }">
+	</MvIF>
+
+	<MvASSIGN NAME="l.dir" VALUE="{fisdir( g.Domain:MOD_ROOT $ 'css' )}">
+	<MvIF EXPR="{ NOT l.dir }">
+		<MvASSIGN NAME="l.mkdir" VALUE="{ smkdir( g.Domain:MOD_ROOT $ 'css' ) }">
+	</MvIF>
+	
+	<MvASSIGN NAME="l.create_css"  VALUE="{ Update_File( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css', l.default_templates:css) }">
+	<MvASSIGN NAME="l.create_js"   VALUE="{ Update_File( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js', l.default_templates:js) }">
+	
+	
+	<MvCOMMENT>Set File Permissions after files have been created</MvCOMMENT>
+	<MvASSIGN NAME="l.file_success" VALUE="{ fchmod( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css', '0755') }">
+	<MvASSIGN NAME="l.file_success" VALUE="{ fchmod( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js', '0755') }">
+
+	<MvFUNCTIONRETURN VALUE = "1">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "Module_Uninstall_Store" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
+
+	<MvASSIGN NAME = "l.ok" 					VALUE = "{ Load_Current_Templates( g.MAILCHIMP ) }"> 
+
+	<MvCOMMENT>Delete all Mange Templates when module is unassigned from the store</MvCOMMENT>
+	<MvASSIGN NAME = "l.template:deleted"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_ManagedTemplate( g.MAILCHIMP:head_id ) }">
+	<MvIF EXPR = "{ l.template:deleted EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+
+	<MvASSIGN NAME = "l.template:deleted"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_ManagedTemplate( g.MAILCHIMP:css_id ) }">
+	<MvIF EXPR = "{ l.template:deleted EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.template:deleted"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_ManagedTemplate( g.MAILCHIMP:js_id ) }">
+	<MvIF EXPR = "{ l.template:deleted EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.template:deleted"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_ManagedTemplate( g.MAILCHIMP:text_id ) }">
+	<MvIF EXPR = "{ l.template:deleted EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+	
+	<MvASSIGN NAME = "l.template:deleted"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Delete_ManagedTemplate( g.MAILCHIMP:check_id ) }">
+	<MvIF EXPR = "{ l.template:deleted EQ 0 }">
+			<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+
+	<MvCOMMENT> *** REMOVE ITEMS FROM PAGEs OCST and SFNT *** </MvCOMMENT>
+        <MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'SFNT', l.page ) }">
+                <MvASSIGN NAME="l.discard" VALUE="{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Unassign_Item( l.page, 'mailchimp' ) }">
+        </MvIF>
+
+        <MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'PROD', l.page ) }">
+                <MvASSIGN NAME="l.discard" VALUE="{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Unassign_Item( l.page, 'mailchimp' ) }">
+        </MvIF>
+
+        <MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( CTGY, l.page ) }">
+                <MvASSIGN NAME="l.discard" VALUE="{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Unassign_Item( l.page, 'mailchimp' ) }">
+        </MvIF>
+
+        <MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Page_Load_Code( 'OCST', l.page ) }">
+                <MvASSIGN NAME="l.discard" VALUE="{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Page_Unassign_Item( l.page, 'mailchimp' ) }">
+        </MvIF>
+
+    <MvCOMMENT> Delete CSS and JS files </MvCOMMENT>
+
+    	<MvIF EXPR="{ sexists( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css' ) }">
+			<MvASSIGN NAME="l.delete" VALUE="{ sdelete( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css' ) }">
+		</MvIF>
+
+		<MvIF EXPR="{ sexists( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js' ) }">
+			<MvASSIGN NAME="l.delete" VALUE="{ sdelete( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js' ) }">
+		</MvIF>
+
+
+	<MvCOMMENT> *** DELETE MAILCHIMP ITEM *** </MvCOMMENT>
+        <MvIF EXPR = "{ [ g.Module_Feature_TUI_DB ].Item_Load_Code( 'mailchimp', l.item ) }">
+                <MvDO FILE = "{ g.Module_Feature_TUI_MGR }" NAME = "l.deleted" VALUE = "{ TemplateManager_Delete_Item( l.item ) }">
+        </MvIF>
+	
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'DROP TABLE ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data' }">
+
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+	<MvFUNCTION NAME = "ComponentModule_Tabs" PARAMETERS = "module var, item, settings var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = "">
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Validate" PARAMETERS = "module var, item, field_prefix, fields var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = 1>
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Update" PARAMETERS = "module var, item, field_prefix, fields var, settings var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = 1>
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Content" PARAMETERS = "module var, item, tab, load_fields, field_prefix, fields var, settings var" STANDARDOUTPUTLEVEL = "">
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Defaults" PARAMETERS = "module var, settings var" STANDARDOUTPUTLEVEL = "">
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Page_Assign" PARAMETERS = "module var, page var, item, settings var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = 1>
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Page_Unassign" PARAMETERS = "module var, page var, item, settings var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = 1>
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Initialize" PARAMETERS = "module var, item, all_settings var, settings var" STANDARDOUTPUTLEVEL = "">
+		<MvFUNCTIONRETURN VALUE = 1>
+	</MvFUNCTION>
+
+	<MvFUNCTION NAME = "ComponentModule_Render_Start" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "text,html,compresswhitespace">
+
+	<MvASSIGN NAME = "l.module_path" VALUE = "{ g.Domain:MOD_ROOT    $  g.Version_Path  $ 'modules/component/mailchimp.mvc' }">
+	
+	<MvASSIGN NAME = "l.all_settings:mailchimp:api_key"			VALUE = "{ get_api_key() }">
+	<MvASSIGN NAME = "l.all_settings:mailchimp:list_id"			VALUE = "{ get_list_id() }">
+	<MvASSIGN NAME = "l.all_settings:mailchimp:loading"			VALUE = "{ get_loading_path() }">
+	<MvASSIGN NAME = "l.all_settings:mailchimp:module_path"		VALUE = "{ l.module_path }">
+		
+	<MvIF EXPR = "{ toupper( l.param ) EQ 'HEADTAG' }">
+
+		<MvDO FILE = "{ g.Store_Template_Path $ 'mailchimp-head.mvc' }"  NAME = "l.null" VALUE = "{ Template_Render( l.null, l.all_settings ) }">
+
+		<MvCOMMENT>If Campaign ID exists create a cookie for ecommerce 360 tracking. This will send mc_cid on INVC</MvCOMMENT>
+		<MvIF EXPR="{ NOT ISNULL ( g.mc_cid ) }">
+
+			<MvASSIGN NAME = "l.expires" VALUE = "{ s.dyn_time_t + ( 43200 * 60 ) }"><MvCOMMENT>30 Days Expiration Date</MvCOMMENT>
+			<MvIF EXPR = "{ NOT( g.Secure ) }">
+				<MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].SetCookie( g.Output_Cookies, 'mc_cid',g.mc_cid, g.cookiedomain, l.expires,	g.cookiepath, 0 ) }">
+			</MvIF>
+
+			<MvCOMMENT>Write Cookie</MvCOMMENT>
+			<MvASSIGN NAME = "l.cookie_success" VALUE = "{ [ g.Module_Library_Utilities ].OutputCookies( g.Output_Cookies ) }">
+
+		</MvIF>
+
+	</MvIF>
+	
+	<MvIF EXPR = "{ toupper( l.param ) EQ 'TEXTBOX' }">
+		
+		<MvDO FILE = "{ g.Store_Template_Path $ 'mailchimp-text.mvc' }"  NAME = "l.null" VALUE = "{ Template_Render( l.null, l.all_settings ) }">
+		
+	</MvIF>
+
+	<MvIF EXPR = "{ toupper( l.param ) EQ 'CHECKBOX' }">
+		
+		<MvDO FILE = "{ g.Store_Template_Path $ 'mailchimp-check.mvc' }"  NAME = "l.null" VALUE = "{ Template_Render( l.null, l.all_settings ) }">
+		
+	</MvIF>
+	
+	<MvFUNCTIONRETURN VALUE = 1>
+
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "ComponentModule_Render_End" PARAMETERS = "module var, item, all_settings var, settings var, param" STANDARDOUTPUTLEVEL = "">
+</MvFUNCTION>
+
+
+<MvCOMMENT> Implement Util functions </MvCOMMENT>
+
+<MvFUNCTION NAME="StoreUtilityModule_Action" PARAMETERS="module var" STANDARDOUTPUTLEVEL="">
+    <MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME="StoreUtilityModule_LeftNavigation" PARAMETERS="module var,indent" STANDARDOUTPUTLEVEL="">
+    <MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+
+
+<MvCOMMENT> Implement vis_util functions</MvCOMMENT>
+
+<MvFUNCTION NAME="Module_Utility_Content" PARAMETERS="module var,tab,load_fields" STANDARDOUTPUTLEVEL="text, html, compresswhitespace">
+
+	
+<MvIF EXPR = "{ l.tab EQ 'MAILCHIMP' }">
+
+	<MvASSIGN NAME = "l.set_fields" 		VALUE = "{ Load_Current_Templates( g.MAILCHIMP ) }"> 
+	
+	<MvCOMMENT>Function called when clear history link is clicked. </MvCOMMENT>
+		
+		<MvCOMMENT>HEAD Tag</MvCOMMENT>
+		<MvIF EXPR = "{ g.MAILCHIMP:head:template_clear_history }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Delete_History( g.MAILCHIMP:head_id ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:head_id, l.head_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:head:template_version"			VALUE = "{ l.head_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:head:template_version_selected"	VALUE = "{ l.head_template:id }">
+		
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:head:template_recall }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:head:template_version_selected, l.head_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:head"	VALUE = "{ l.head_template:settings }">
+			<MvASSIGN NAME = "l.set_fields"					VALUE = 1>
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:head_id NE 0 }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:head_id, l.head_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+		</MvIF>
+		
+
+
+		<MvCOMMENT>CSS</MvCOMMENT>
+		<MvIF EXPR = "{ g.MAILCHIMP:css:template_clear_history }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Delete_History( g.MAILCHIMP:css_id ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:css_id, l.css_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:css:template_version"			VALUE = "{ l.css_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:css:template_version_selected"	VALUE = "{ l.css_template:id }">
+		
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:css:template_recall }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:css:template_version_selected, l.css_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:css"	VALUE = "{ l.css_template:settings }">
+			<MvASSIGN NAME = "l.set_fields"					VALUE = 1>
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:css_id NE 0 }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:css_id, l.css_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+		</MvIF>
+		
+		<MvCOMMENT>JS</MvCOMMENT>
+		<MvIF EXPR = "{ g.MAILCHIMP:js:template_clear_history }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Delete_History( g.MAILCHIMP:js_id ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:js_id, l.js_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:js:template_version"			VALUE = "{ l.js_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:js:template_version_selected"	VALUE = "{ l.js_template:id }">
+		
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:js:template_recall }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:js:template_version_selected, l.js_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:js"	VALUE = "{ l.js_template:settings }">
+			<MvASSIGN NAME = "l.set_fields"					VALUE = 1>
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:js_id NE 0 }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:js_id, l.js_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+		</MvIF>
+		
+		
+		<MvCOMMENT>TEXTBOX</MvCOMMENT>
+		<MvIF EXPR = "{ g.MAILCHIMP:text:template_clear_history }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Delete_History( g.MAILCHIMP:text_id ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:text_id, l.text_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:text:template_version"			VALUE = "{ l.text_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:text:template_version_selected"	VALUE = "{ l.text_template:id }">
+		
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:text:template_recall }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:text:template_version_selected, l.text_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:text"	VALUE = "{ l.text_template:settings }">
+			<MvASSIGN NAME = "l.set_fields"					VALUE = 1>
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:text_id NE 0 }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:text_id, l.text_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+		</MvIF>
+		
+		
+		
+		<MvCOMMENT>CHECKBOX</MvCOMMENT>
+		<MvIF EXPR = "{ g.MAILCHIMP:check:template_clear_history }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Delete_History( g.MAILCHIMP:check_id ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:check_id, l.check_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:check:template_version"			VALUE = "{ l.check_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:check:template_version_selected"	VALUE = "{ l.check_template:id }">
+		
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:check:template_recall }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:check:template_version_selected, l.check_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+			<MvASSIGN NAME = "g.MAILCHIMP:check"	VALUE = "{ l.check_template:settings }">
+			<MvASSIGN NAME = "l.set_fields"					VALUE = 1>
+		<MvELSEIF EXPR = "{ g.MAILCHIMP:check_id NE 0 }">
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_Template_Current( g.MAILCHIMP:check_id, l.check_template ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+		</MvIF>
+		
+		
+		
+		
+		<MvCOMMENT>If Load_Current_Templates was successful set the defaule values for variables used in the form in the admin</MvCOMMENT>
+
+		<MvIF EXPR = "{ NOT ISNULL ( l.set_fields ) }">
+
+			<MvASSIGN NAME = "g.MAILCHIMP:head:notes"								VALUE = "">
+			<MvASSIGN NAME = "g.MAILCHIMP:head:template_code"						VALUE = "{ l.head_template:source }">
+			<MvASSIGN NAME = "g.MAILCHIMP:head:template_version"					VALUE = "{ l.head_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:head:template_version_selected"			VALUE = "{ l.head_template:id }">
+
+			<MvASSIGN NAME = "g.MAILCHIMP:css:notes"								VALUE = "">
+			<MvASSIGN NAME = "g.MAILCHIMP:css:template_code"						VALUE = "{ l.css_template:source }">
+			<MvASSIGN NAME = "g.MAILCHIMP:css:template_version"						VALUE = "{ l.css_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:css:template_version_selected"			VALUE = "{ l.css_template:id }">
+			
+			<MvASSIGN NAME = "g.MAILCHIMP:js:notes"									VALUE = "">
+			<MvASSIGN NAME = "g.MAILCHIMP:js:template_code"							VALUE = "{ l.js_template:source }">
+			<MvASSIGN NAME = "g.MAILCHIMP:js:template_version"						VALUE = "{ l.js_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:js:template_version_selected"				VALUE = "{ l.js_template:id }">
+			
+			<MvASSIGN NAME = "g.MAILCHIMP:text:notes"								VALUE = "">
+			<MvASSIGN NAME = "g.MAILCHIMP:text:template_code"						VALUE = "{ l.text_template:source }">
+			<MvASSIGN NAME = "g.MAILCHIMP:text:template_version"					VALUE = "{ l.text_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:text:template_version_selected"			VALUE = "{ l.text_template:id }">
+			
+			<MvASSIGN NAME = "g.MAILCHIMP:check:notes"								VALUE = "">
+			<MvASSIGN NAME = "g.MAILCHIMP:check:template_code"						VALUE = "{ l.check_template:source }">
+			<MvASSIGN NAME = "g.MAILCHIMP:check:template_version"					VALUE = "{ l.check_template:id }">
+			<MvASSIGN NAME = "g.MAILCHIMP:check:template_version_selected"			VALUE = "{ l.check_template:id }">
+		
+		</MvIF>
+
+
+
+	<h2>MailChimp Newsletter Signup</h2>
+
+		<INPUT TYPE = "hidden" NAME = "MAILCHIMP_Screen" VALUE = "{ g.MAILCHIMP_Screen }">
+
+		<SCRIPT LANGUAGE = "JavaScript">
+		<!--
+		function SetScreen( screen ) {
+			document.forms[ Screen ].elements[ 'MAILCHIMP_Screen' ].value = unescape( screen );
+		}
+		//-->
+		</SCRIPT>
+		
+		<div style="padding:0 0 20px 40px;">	
+		<A HREF = "javascript:SetScreen( '' );SubmitForm( 'SMOD', '' );">Home</A>&nbsp;&nbsp;&nbsp;
+		<A HREF = "javascript:SetScreen( 'SETTINGS' );SubmitForm( 'SMOD', '' );">Advanced Settings</A>&nbsp;&nbsp;&nbsp;
+		</div>
+		
+
+			 <MvIF EXPR = "{ g.MAILCHIMP_Screen EQ 'SETTINGS' }">
+				 
+				 <MvIF EXPR = "{ NOT MAILCHIMP_Load_Settings() }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+				 
+			 <MvELSE>
+		
+				<MvIF EXPR = "{ NOT MAILCHIMP_Load_Home() }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+	 
+			</MvIF>
+
+	<MvELSE>
+		<MvHIDE FIELDS = "g.MAILCHIMP">
+		
+	</MvIF> <MvCOMMENT> End MAILCHIMP Tab on Utility page </MvCOMMENT>
+	
+
+    <MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+<MvFUNCTION NAME="Module_Utility_Tabs" PARAMETERS="module var" STANDARDOUTPUTLEVEL="">
+    <MvFUNCTIONRETURN VALUE="MAILCHIMP:MailChimp Newsletter Signup">
+</MvFUNCTION>
+
+<MvFUNCTION NAME="Module_Utility_Update" PARAMETERS="module var" STANDARDOUTPUTLEVEL="">
+
+ <MvCOMMENT>Load current template values and API key / List ID from MAILCHIMP_Data table</MvCOMMENT>
+	 <MvIF EXPR = "{ NOT Load_Current_Templates( l.template ) }">
+	 <MvFUNCTIONRETURN VALUE = 0>
+	 </MvIF>
+ 
+ <MvIF EXPR = "{ g.MAILCHIMP_Screen NE 'SETTINGS' }">	
+	
+			<MvCOMMENT>Check and see if the api_key has been changed. If so, update the database</MvCOMMENT>
+			<MvIF EXPR = "{ g.MAILCHIMP:api_key NE l.template:api_key }">
+				<MvIF EXPR = "{ NOT update_api_key( encodeentities( g.MAILCHIMP:api_key) ) }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+			
+			
+			<MvCOMMENT>Check and see if the list id has been updated. If so, update the database</MvCOMMENT>
+			<MvIF EXPR = "{ g.MAILCHIMP:list_id NE l.template:list_id}">
+				<MvIF EXPR = "{ NOT update_list_id( encodeentities( g.MAILCHIMP:list_id ) ) }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+			
+			
+			<MvIF EXPR = "{ g.MAILCHIMP:loading NE l.template:loading }">
+				<MvIF EXPR = "{ NOT update_loading_graphic( encodeentities( g.MAILCHIMP:loading) ) }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+
+	
+	
+	<MvELSE>		<MvCOMMENT>Update Functions for Advanced Settings (page templates)</MvCOMMENT>
+	
+	<MvASSIGN NAME="l.update_css"  VALUE="{ Update_File( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css', g.MAILCHIMP:css:template_code) }">
+	<MvASSIGN NAME="l.update_js"   VALUE="{ Update_File( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js', g.MAILCHIMP:js:template_code) }">
+	
+	<MvASSIGN NAME="l.file_success" VALUE="{ fchmod( g.Domain:MOD_ROOT $ 'css/mailchimp-style.css', '0755') }">
+	<MvASSIGN NAME="l.file_success" VALUE="{ fchmod( g.Domain:MOD_ROOT $ 'js/mailchimp-js.js', '0755') }">
+	
+	
+	
+			<MvCOMMENT>If Manage Template has never been created</MvCOMMENT>
+		
+		<MvCOMMENT>Head Tag</MvCOMMENT>
+		<MvIF EXPR = "{ l.template:head_id EQ 0 }">
+			<MvIF EXPR = "{ len( g.MAILCHIMP:head:template_code ) NE 0 }">
+				<MvASSIGN NAME = "l.template:head_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( g.MAILCHIMP:head:template_code, l.null, 'mailchimp-head.mvc' ) }">
+				<MvIF EXPR = "{ l.template:head_id EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+            
+		<MvELSE>
+			
+            <MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:head:template_version, l.head_template ) OR
+							NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Load_ID( l.template:head_id, l.managedtemplate ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+
+			<MvIF EXPR = "{ trim( g.MAILCHIMP:head:template_code ) EQ trim( l.head_template:source ) }">
+
+				<MvIF EXPR = "{ l.head_template:id NE l.managedtemplate:current_id }">
+					<MvASSIGN NAME = "l.managedtemplate:current_id"	VALUE = "{ l.head_template:id }">
+
+					<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Revert_ManagedTemplateVersion( l.managedtemplate, l.head_template, l.compile_error ) }">
+						<MvIF EXPR = "{ len( l.compile_error ) }">
+							<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00010', 'MAILCHIMP:head:template_code', l.compile_error ) }">
+							<MvFUNCTIONRETURN VALUE = 1>
+						</MvIF>
+
+						<MvFUNCTIONRETURN VALUE = 0>
+					</MvIF>
+
+					<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-HEAD-REV', l.module:name $ ' head tag template reverted' ) }">
+				</MvIF>
+			<MvELSE>
+				
+				<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplateVersion( l.managedtemplate, g.MAILCHIMP:head:notes, g.MAILCHIMP:head:template_code, l.template, l.compile_error ) }">
+					<MvIF EXPR = "{ len( l.compile_error ) }">
+						<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00010', 'MAILCHIMP:css:template_code', l.compile_error ) }">
+						<MvFUNCTIONRETURN VALUE = 1>
+					</MvIF>
+
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+
+				<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-HEAD-UP', l.module:name $ ' head tag template updated' ) }">
+			</MvIF>
+		</MvIF>
+
+
+
+        <MvCOMMENT>CSS</MvCOMMENT>
+		<MvIF EXPR = "{ l.template:css_id EQ 0 }">
+			<MvIF EXPR = "{ len( g.MAILCHIMP:css:template_code ) NE 0 }">
+				<MvASSIGN NAME = "l.template:css_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( g.MAILCHIMP:css:template_code, l.null, 'mailchimp-css.mvc' ) }">
+				<MvIF EXPR = "{ l.template:css_id EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+            
+		<MvELSE>
+			
+            <MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:css:template_version, l.css_template ) OR
+							NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Load_ID( l.template:css_id, l.managedtemplate ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+
+
+			<MvIF EXPR = "{ trim( g.MAILCHIMP:css:template_code ) EQ trim( l.css_template:source ) }">
+				<MvIF EXPR = "{ l.css_template:id NE l.managedtemplate:current_id }">
+					<MvASSIGN NAME = "l.managedtemplate:current_id"	VALUE = "{ l.css_template:id }">
+
+					<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Revert_ManagedTemplateVersion( l.managedtemplate, l.css_template, l.compile_error ) }">
+						<MvIF EXPR = "{ len( l.compile_error ) }">
+							<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00011', 'MAILCHIMP:css:template_code', l.compile_error ) }">
+							<MvFUNCTIONRETURN VALUE = 1>
+						</MvIF>
+
+						<MvFUNCTIONRETURN VALUE = 0>
+					</MvIF>
+
+					<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-CSS-REV', l.module:name $ ' css template reverted' ) }">
+				</MvIF>
+			<MvELSE>
+				
+				<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplateVersion( l.managedtemplate, g.MAILCHIMP:css:notes, g.MAILCHIMP:css:template_code, l.template, l.compile_error ) }">
+					<MvIF EXPR = "{ len( l.compile_error ) }">
+						<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00011', 'MAILCHIMP:css:template_code', l.compile_error ) }">
+						<MvFUNCTIONRETURN VALUE = 1>
+					</MvIF>
+
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+
+				<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-CSS-UP', l.module:name $ ' css template updated' ) }">
+			</MvIF>
+		</MvIF>
+		
+		
+		
+		
+		
+		<MvCOMMENT>Javascript Update Functions</MvCOMMENT>
+
+		<MvIF EXPR = "{ l.template:js_id EQ 0 }">
+			<MvIF EXPR = "{ len( g.MAILCHIMP:js:template_code ) NE 0 }">
+				<MvASSIGN NAME = "l.template:js_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( g.MAILCHIMP:js:template_code, l.null, 'mailchimp-js.mvc' ) }">
+				<MvIF EXPR = "{ l.template:js_id EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+		<MvELSE>
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:js:template_version, l.js_template ) OR
+							NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Load_ID( l.template:js_id, l.managedtemplate ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+			
+			<MvIF EXPR = "{ trim( g.MAILCHIMP:js:template_code ) EQ trim( l.js_template:source ) }">
+				<MvIF EXPR = "{ l.js_template:id NE l.managedtemplate:current_id }">
+					<MvASSIGN NAME = "l.managedtemplate:current_id"	VALUE = "{ l.js_template:id }">
+
+					<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Revert_ManagedTemplateVersion( l.managedtemplate, l.js_template, l.compile_error ) }">
+						<MvIF EXPR = "{ len( l.compile_error ) }">
+							<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00012', 'MAILCHIMP:js:template_code', l.compile_error ) }">
+							<MvFUNCTIONRETURN VALUE = 1>
+						</MvIF>
+
+						<MvFUNCTIONRETURN VALUE = 0>
+					</MvIF>
+
+					<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-JS-REV', l.module:name $ ' js template reverted' ) }">
+				</MvIF>
+			<MvELSE>
+				<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplateVersion( l.managedtemplate, g.MAILCHIMP:js:notes, g.MAILCHIMP:js:template_code, l.template, l.compile_error ) }">
+					<MvIF EXPR = "{ len( l.compile_error ) }">
+						<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00012', 'MAILCHIMP:js:template_code', l.compile_error ) }">
+						<MvFUNCTIONRETURN VALUE = 1>
+					</MvIF>
+
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+
+				<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-JS-UP', l.module:name $ ' js template updated' ) }">
+			</MvIF>
+       </MvIF>
+		
+		
+		
+		<MvCOMMENT>Checkbox Update Functions</MvCOMMENT>
+
+		<MvIF EXPR = "{ l.template:check_id EQ 0 }">
+			<MvIF EXPR = "{ len( g.MAILCHIMP:check:template_code ) NE 0 }">
+				<MvASSIGN NAME = "l.template:check_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( g.MAILCHIMP:check:template_code, l.null, 'mailchimp-check.mvc' ) }">
+				<MvIF EXPR = "{ l.template:check_id EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+		<MvELSE>
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:check:template_version, l.check_template ) OR
+							NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Load_ID( l.template:check_id, l.managedtemplate ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+			
+			<MvIF EXPR = "{ trim( g.MAILCHIMP:check:template_code ) EQ trim( l.check_template:source ) }">
+				<MvIF EXPR = "{ l.check_template:id NE l.managedtemplate:current_id }">
+					<MvASSIGN NAME = "l.managedtemplate:current_id"	VALUE = "{ l.check_template:id }">
+
+					<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Revert_ManagedTemplateVersion( l.managedtemplate, l.check_template, l.compile_error ) }">
+						<MvIF EXPR = "{ len( l.compile_error ) }">
+							<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00013', 'MAILCHIMP:check:template_code', l.compile_error ) }">
+							<MvFUNCTIONRETURN VALUE = 1>
+						</MvIF>
+
+						<MvFUNCTIONRETURN VALUE = 0>
+					</MvIF>
+
+					<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-CHECK-REV', l.module:name $ ' check template reverted' ) }">
+				</MvIF>
+			<MvELSE>
+				<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplateVersion( l.managedtemplate, g.MAILCHIMP:check:notes, g.MAILCHIMP:check:template_code, l.template, l.compile_error ) }">
+					<MvIF EXPR = "{ len( l.compile_error ) }">
+						<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00013', 'MAILCHIMP:check:template_code', l.compile_error ) }">
+						<MvFUNCTIONRETURN VALUE = 1>
+					</MvIF>
+
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+
+				<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-CHECK-UP', l.module:name $ ' checkbox template updated' ) }">
+			</MvIF>
+       </MvIF>
+		
+		
+		
+		<MvCOMMENT>Textbox Update Functions</MvCOMMENT>
+
+		<MvIF EXPR = "{ l.template:text_id EQ 0 }">
+			<MvIF EXPR = "{ len( g.MAILCHIMP:text:template_code ) NE 0 }">
+				<MvASSIGN NAME = "l.template:text_id"		VALUE = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplate( g.MAILCHIMP:text:template_code, l.null, 'mailchimp-text.mvc' ) }">
+				<MvIF EXPR = "{ l.template:text_id EQ 0 }">
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+			</MvIF>
+		<MvELSE>
+			<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_DB ].ManagedTemplateVersion_Load_ID( g.MAILCHIMP:text:template_version, l.text_template ) OR
+							NOT [ g.Module_Feature_TUI_DB ].ManagedTemplate_Load_ID( l.template:text_id, l.managedtemplate ) }">
+				<MvFUNCTIONRETURN VALUE = 0>
+			</MvIF>
+			
+			<MvIF EXPR = "{ trim( g.MAILCHIMP:text:template_code ) EQ trim( l.text_template:source ) }">
+				<MvIF EXPR = "{ l.text_template:id NE l.managedtemplate:current_id }">
+					<MvASSIGN NAME = "l.managedtemplate:current_id"	VALUE = "{ l.text_template:id }">
+
+					<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Revert_ManagedTemplateVersion( l.managedtemplate, l.text_template, l.compile_error ) }">
+						<MvIF EXPR = "{ len( l.compile_error ) }">
+							<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00014', 'MAILCHIMP:text:template_code', l.compile_error ) }">
+							<MvFUNCTIONRETURN VALUE = 1>
+						</MvIF>
+
+						<MvFUNCTIONRETURN VALUE = 0>
+					</MvIF>
+
+					<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-TEXT-REV', l.module:name $ ' text template reverted' ) }">
+				</MvIF>
+			<MvELSE>
+				<MvIF EXPR = "{ NOT [ g.Module_Feature_TUI_MGR ].TemplateManager_Create_ManagedTemplateVersion( l.managedtemplate, g.MAILCHIMP:text:notes, g.MAILCHIMP:text:template_code, l.template, l.compile_error ) }">
+					<MvIF EXPR = "{ len( l.compile_error ) }">
+						<MvASSIGN NAME = "l.null" VALUE = "{ [ g.Module_Admin ].FieldError( 'MER-MC-00014', 'MAILCHIMP:text:template_code', l.compile_error ) }">
+						<MvFUNCTIONRETURN VALUE = 1>
+					</MvIF>
+
+					<MvFUNCTIONRETURN VALUE = 0>
+				</MvIF>
+
+				<MvEVAL EXPR = "{ [ g.Module_Admin ].Admin_Log_Action( 'MER-MC-TEXT-UP', l.module:name $ ' textbox template updated' ) }">
+			</MvIF>
+       </MvIF>
+		
+		
+
+	</MvIF> <MvCOMMENT>End Check SETTINGS subscreen</MvCOMMENT>
+
+
+    <MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+<MvFUNCTION NAME="Module_Utility_Validate" PARAMETERS="module var" STANDARDOUTPUTLEVEL="">
+	
+    <MvFUNCTIONRETURN VALUE="1">
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "Load_Current_Templates" PARAMETERS = "template var" STANDARDOUTPUTLEVEL = "">
+	<MvOPENVIEW NAME	= "Merchant"
+			    VIEW	= "TEMPLATE"
+				QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data' }"
+				FIELDS	= "">
+	<MvIF EXPR = "{ g.MvOPENVIEW_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00100', g.MvOPENVIEW_Error ) }">
+	</MvIF>
+
+	
+	<MvASSIGN NAME = "l.template:api_key"			VALUE = "{ TEMPLATE.d.api_key }">
+	<MvASSIGN NAME = "l.template:list_id"			VALUE = "{ TEMPLATE.d.list_id }">
+	<MvASSIGN NAME = "l.template:head_id"			VALUE = "{ TEMPLATE.d.head_id }">
+	<MvASSIGN NAME = "l.template:css_id"			VALUE = "{ TEMPLATE.d.css_id }">
+	<MvASSIGN NAME = "l.template:js_id"				VALUE = "{ TEMPLATE.d.js_id }">
+	<MvASSIGN NAME = "l.template:text_id"			VALUE = "{ TEMPLATE.d.check_id }">
+	<MvASSIGN NAME = "l.template:check_id"			VALUE = "{ TEMPLATE.d.text_id }">
+	<MvASSIGN NAME = "l.template:loading"			VALUE = "{ TEMPLATE.d.loading }">
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "TEMPLATE">
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "CSS_Template" STANDARDOUTPUTLEVEL = "html,text">
+
+<MvCAPTURE VARIABLE = "l.template">
+.mailchimp #newsletter {
+	background:none repeat scroll 0 0 #F9F8F6;
+	border:1px solid #CCCCCC;
+	display:block;
+	padding:10px;
+	word-wrap:break-word;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	width:190px;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:14px;
+	color:#5A5858;
+}
+.mailchimp #checkbox {
+	width:170px;
+	float:left;
+	margin-left:150px;
+	position:relative;
+}
+.mailchimp #checkbox_message {
+	z-index:10;
+	position:absolute;
+	top:-2px;
+	background-color:#fff;
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:11px;
+	width:100%;
+	display: none;
+	padding:6px;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	border:1px solid #CCCCCC;
+	background:none repeat scroll 0 0 #F9F8F6;
+}
+.mailchimp #message {
+	margin:auto;
+	padding:10px;
+	text-align:center;
+	font-size:11px;
+	color:#666;
+	height:30px;
+}
+.mailchimp #mailchimp_email {
+	color:#666;
+	font-size:11px;
+	margin-top:8px;
+	width:115px;
+}
+.mailchimp input.sec-button {
+	padding:1px;
+	width:55px;
+}
+.mailchimp .sec-button {
+	background:-moz-linear-gradient(center top, #FFFFFF, #D2D2D2) repeat scroll 0 0 transparent;
+	background:-webkit-linear-gradient(center top, #FFFFFF, #D2D2D2) repeat scroll 0 0 transparent;
+	color:#004172;
+	-moz-border-radius:5px;
+	-webkit-border-radius:5px;
+	border-radius:5px;
+	border:1px solid #CDCDCD;
+	cursor:pointer;
+	font:bold 11px Arial, Helvetica, sans-serif;
+	margin:0;
+	padding:3px 10px;
+	text-decoration:none;
+	text-shadow:0 1px 1px rgba(255, 255, 255, 0.3);
+	text-transform:uppercase;
+	vertical-align:middle;
+	margin-top:-5px;
+}
+.mailchimp #newsletter_title {
+	font-size:12px;
+	color:#004172;
+}
+.mailchimp #remove, .mailchimp #remove a, .mailchimp #remove a:hover {
+	color:#666;
+	font-size:9px;
+	color:#004172;
+	text-decoration:underline;
+}
+</MvCAPTURE>
+
+	<MvFUNCTIONRETURN VALUE = "{ l.template }">
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "JS_Template" STANDARDOUTPUTLEVEL = "html,text">
+
+		<MvIF EXPR = "{ NOT Load_Current_Templates( l.template ) }">
+	 		<MvFUNCTIONRETURN VALUE = 0>
+	 	</MvIF>  
+		
+	
+
+<MvCAPTURE VARIABLE = "l.template">
+
+		
+	//Success Message. Message that fades in once the user has successfully been subscribed.
+	var success_message = "Successfully Subscribed";
+	
+	//Success Message. Message that fades in once the user has successfully been subscribed.
+    	var already_subscribed_message = "Your are already subscribed to our mailing list.";
+
+	//Unsubscribe Message. Message that shows up when a user has removed their email from your mailing list.
+	var unsubscribe_message = "You have been removed from our email list";
+	
+	//This is the color that will be used for both the subscribe and unsubscribe error messages.
+	var message_color = "#2398C9";
+	
+	//preload loading gif
+ 	if(loading_path){		
+	  loading = new Image(); 
+	  loading.src = loading_path;
+ 	}
+	
+	
+ function addSubscriber(api_key, id, email,firstname,lastname,response_message_id){
+		
+	if( window.location.href.indexOf("https") != -1 ){
+	 	url = "https://" + window.location.hostname + module_path + "?action=subscribe&api_key=" + api_key + "&id=" + id + "&email_address=" + email + "&merge_vars[FNAME]=" + firstname + "&merge_vars[LNAME]=" + lastname + "&output=json";
+	 }else{
+	 	 url = "http://" + window.location.hostname + module_path + "?action=subscribe&api_key=" + api_key + "&id=" + id + "&email_address=" + email + "&merge_vars[FNAME]=" + firstname + "&merge_vars[LNAME]=" + lastname + "&output=json";
+	 }
+	 
+	if(response_message_id == 'checkbox_message'){
+    	$('#' + response_message_id ).css('display','block');
+    }
+    
+    if(loading_path){			
+	 $('#' + response_message_id ).html('<img src=' + loading_path + ' border="0"  />');
+     }
+
+		$.get(url, function(data){
+   			data = jQuery.trim(data);   
+				
+				if(data == "true"){
+					
+					$('#' + response_message_id ).css('color',message_color);
+					$('#' + response_message_id ).text(success_message).fadeIn(1000) ;
+				
+				}else{
+
+					var myObject = jQuery.parseJSON( data );
+
+					$('#message').css('color',message_color);
+						
+                        if(myObject.code == 214){
+                        	$('#' + response_message_id ).html(already_subscribed_message).fadeIn(1000);
+                        }else{
+                            $('#' + response_message_id ).html(myObject.error).fadeIn(1000);
+                        }
+						
+						if(document.getElementById('newsletter_checkbox') != null){
+							$('input[name=newsletter]').attr('checked', false);		
+						}
+					}
+					
+ 		}); //end .get
+        
+     if(response_message_id == 'checkbox_message'){
+        setTimeout(function() { $('#' + response_message_id ).css('display','none').fadeOut(slow); }, 7000);
+     }
+        
+	} //end add Subscriber
+	
+	
+	
+function removeSubscriber(api_key, id, email,delete_member,send_goodbye,send_notify,response_message_id){
+					
+						
+    if( window.location.href.indexOf("https") != -1 ){
+	  url = "https://" + window.location.hostname + module_path + "?action=unsubscribe&api_key=" + api_key + "&id=" + id + "&email_address=" + email + "&delete_member=" + delete_member + "&send_goodbye=" + send_goodbye + "&send_notify=" + send_notify +"&output=json";
+	 }else{
+	 	url = "http://" + window.location.hostname + module_path + "?action=unsubscribe&api_key=" + api_key + "&id=" + id + "&email_address=" + email + "&delete_member=" + delete_member + "&send_goodbye=" + send_goodbye + "&send_notify=" + send_notify +"&output=json";
+	 }
+	
+    if(response_message_id == 'checkbox_message'){
+    	$('#' + response_message_id ).css('display','block');
+    }
+    
+    
+		if(loading_path){	
+	   		$( '#' + response_message_id ).html('<img src=' + loading_path + ' border="0"  />');
+         }
+				
+				$.get(url, function(data){
+					data = $.trim(data);
+					
+   					
+					if(data == "true"){
+						$('#' + response_message_id ).css('color',message_color);
+						$('#' + response_message_id ).text(unsubscribe_message).fadeIn(1000);
+					}else{
+						
+						var myObject = jQuery.parseJSON( data );
+						
+						$('#' + response_message_id ).css('color',message_color);
+						$('#' + response_message_id ).html(myObject.error).fadeIn(1000);
+	
+					}
+					
+				
+ 			});
+            
+        if(response_message_id == 'checkbox_message'){
+            setTimeout(function() { $('#' + response_message_id ).css('display','none').fadeOut(slow); }, 7000);
+         }
+
+	}
+	
+	
+	function disableCheckbox(){
+		$('#newsletter_checkbox').attr('disabled', 'disabled');
+	}
+	
+	function enableCheckbox(){
+		$('#newsletter_checkbox').removeAttr('disabled');
+	}
+	
+	
+	
+ 	function addEmail(){
+									   
+        var email = $('#mailchimp_email').val();
+
+		if( api_key == '' || list_id == ''){
+			alert("Please enter your MailChimp API Key and select a list in the Miva Merchant admin under utilities.");
+		}else{
+			addSubscriber(api_key, list_id, email, '', '','message');
+		}
+   		
+		return false;			
+	}
+ 
+ 	function removeEmail(){
+									   
+        var email = $('#mailchimp_email').val();
+		if( api_key == '' || list_id == ''){
+			alert("Please enter your MailChimp API Key and select a list in the Miva Merchant admin under utilities.");
+		}else{
+			removeSubscriber(api_key, list_id, email, 'false', 'false', 'false','message');
+		}
+		return false;			
+ 	}
+
+
+
+function mailchimp_checkbox(){
+
+		//set variables
+		var isChecked =	 $('input[name=newsletter]:checked').val();
+		var shippingEmail = $('#ShipEmail').val();
+		var shippingFirstName = $('#ShipFirstName').val();
+		var shippingLastName = $('#ShipLastName').val();
+		
+		if (shippingEmail == ''){
+        
+			alert("Please enter your email address above and try again.");
+			$('input[name=newsletter]').attr('checked', false);	
+            
+		}else if(shippingFirstName == ''){
+        
+			alert("Please enter your first name above and try again.");
+			$('input[name=newsletter]').attr('checked', false);	
+            	
+		}else if(shippingLastName == ''){
+        
+			alert("Please enter your last name above and try again.");
+			$('input[name=newsletter]').attr('checked', false);	
+            
+		}else{
+		
+			if( api_key == '' || list_id == ''){
+				alert("Please enter your MailChimp API Key and select a list in the Miva Merchant admin under utilities.");
+			}else{	
+					
+				if(isChecked){
+                
+					disableCheckbox();
+					addSubscriber(api_key, list_id, shippingEmail, shippingFirstName, shippingLastName, 'checkbox_message');
+					setTimeout("enableCheckbox()",2000);
+						
+				}else{
+							
+                	disableCheckbox();
+					removeSubscriber(api_key, list_id, shippingEmail, 'false', 'false', 'false', 'checkbox_message');
+					setTimeout("enableCheckbox()",2000);
+                    
+				}
+			} //end api key check
+				
+		} //end input valudation
+
+	} // end mailchimp checkbox
+
+	
+    function mailchimp_textbox(){
+    
+    	$('#mailchimp_email').focus(function(){
+			$('#mailchimp_email').css('color', '#666');
+		});
+        
+		$('#mailchimp_email').focus(function(){this.value=''}).blur(function(){if(this.value==''){this.value='Enter Email Address'}});
+	
+		$('#newsletter_form').unbind("submit").submit(function(){
+			var email = $('#mailchimp_email').val();
+				if(email != 0){
+					if(isValidEmailAddress(email)){
+						addEmail();
+						return false;
+                        
+					}else{
+						$('#mailchimp_email').val('Invalid Email Address');
+						$('#mailchimp_email').css('color', '#EF2C2C');
+						return false;
+					}
+				}
+		});
+
+
+
+		$('#remove-link').unbind("click").click(function(){
+			var email = $('#mailchimp_email').val();
+				if(email != 0){
+					if(isValidEmailAddress(email)){
+						removeEmail();
+						return false;
+                        
+				}else{
+					$('#mailchimp_email').val('Invalid Email Address');
+					$('#mailchimp_email').css('color', '#EF2C2C');
+					return false;
+				}
+			}
+		});
+
+	} // end mailchimp_textbox
+
+	
+    function isValidEmailAddress(emailAddress){
+		var pattern = new RegExp(/^(("[\w-\s]+")|([\w-]+(?:\.[\w-]+)*)|("[\w-\s]+")([\w-]+(?:\.[\w-]+)*))(@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$)|(@\[?((25[0-5]\.|2[0-4][0-9]\.|1[0-9]{2}\.|[0-9]{1,2}\.))((25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\.){2}(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[0-9]{1,2})\]?$)/i);
+		return pattern.test(emailAddress);
+	}
+
+$(document).ready(function () {
+
+	var checkbox_present = document.getElementById("newsletter_checkbox");
+    var textbox_present = document.getElementById("mailchimp_email");
+    
+    	if (checkbox_present != null){
+			
+            $('#newsletter_checkbox').unbind("click").click(function () {
+				mailchimp_checkbox(); 
+ 			});
+		}
+        
+        if (textbox_present != null){
+            mailchimp_textbox(); 
+		}
+    
+
+});
+	
+
+</MvCAPTURE>
+
+	<MvFUNCTIONRETURN VALUE = "{ l.template }">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "HEADTAG_Template" STANDARDOUTPUTLEVEL = "html,text">
+
+<MvCAPTURE VARIABLE = "l.template">
+<mvt:comment>
+	The javascript below will load jQuery if it is not loaded yet. If you have other scripts that use 
+	different versions of jquery you will want to remove this call to avoid conflicts.
+</mvt:comment>
+<MvEVAL EXPR="{ '<script type="text/javascript">' }">
+<MvEVAL EXPR="{ 'if(typeof jQuery == \'undefined\')document.write(\'<sc\'+\'ript src="http\'+' }">
+<MvEVAL EXPR="{ '(document.location.protocol==\'https:\'?\'s://\':\'://\')+' }">
+<MvEVAL EXPR="{ '\'ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></sc\'+\'ript>\')</script>' }">
+
+
+<link type="text/css" rel="stylesheet" href="css/mailchimp-style.css" media="screen" />
+<script type="text/javascript">
+	var list_id = '&mvte:mailchimp:list_id;';
+	var api_key = '&mvte:mailchimp:api_key;';
+	var loading_path = '&mvte:mailchimp:loading;';
+	var module_path = '&mvte:mailchimp:module_path;';
+</script>
+<script type="text/javascript" src="js/mailchimp-js.js"></script>
+
+
+</MvCAPTURE>
+
+	<MvFUNCTIONRETURN VALUE = "{ l.template }">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "CHECKBOX_Template" STANDARDOUTPUTLEVEL = "html,text">
+
+<MvCAPTURE VARIABLE = "l.template">
+<div class="mailchimp">
+  <div id="checkbox">
+    <input name="newsletter" type="checkbox" value="subscribe" id="newsletter_checkbox" />
+    <span> Signup for our Mailing List</span>
+	 <div id="checkbox_message" ></div>
+  </div>
+</div>
+</MvCAPTURE>
+
+	<MvFUNCTIONRETURN VALUE = "{ l.template }">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "TEXTBOX_Template" STANDARDOUTPUTLEVEL = "html,text">
+
+<MvCAPTURE VARIABLE = "l.template">
+<div class="mailchimp">
+  <div id="newsletter">
+    <form action="javascript:return false;" name="newsletter-form" id="newsletter_form">
+      <b id="newsletter_title">Newsletter Signup</b>
+      <input name="email_address" id="mailchimp_email"  value="Enter Email Address"/>
+      <input type="submit" class="sec-button" title="Sign Up" value="Sign Up" />
+      <div id="message" > Sign up to receive coupons, discounts and product updates. </div>
+    </form>
+    <div id="remove"> <a href="javascript:return false;" id="remove-link">Unsubscribe</a> </div>
+  </div>
+</div>
+</MvCAPTURE>
+
+	<MvFUNCTIONRETURN VALUE = "{ l.template }">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "MAILCHIMP_Insert" PARAMETERS = "template var" STANDARDOUTPUTLEVEL = "">
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'INSERT INTO ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data
+						  ( head_id, css_id, js_id, text_id, check_id )
+						  VALUES
+						  ( ?, ?, ?, ?, ? )' }"
+			 FIELDS	= "l.template:head_id, l.template:css_id, l.template:js_id, l.template:text_id, l.template:check_id">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00101', g.MvQUERY_Error ) }">
+	</MvIF>
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "update_list_id" PARAMETERS = "list_id" STANDARDOUTPUTLEVEL = "">
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'UPDATE ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data
+			 			  SET list_id = ? 
+			 			 ' }"
+			 FIELDS	= "l.list_id">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00102', g.MvQUERY_Error ) }">
+	</MvIF>
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "update_api_key" PARAMETERS = "api_key" STANDARDOUTPUTLEVEL = "">
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'UPDATE ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data
+			 			  SET api_key = ? 
+			 			 ' }"
+			 FIELDS	= "l.api_key">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00103', g.MvQUERY_Error ) }">
+	</MvIF>
+	
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "update_loading_graphic" PARAMETERS = "loading" STANDARDOUTPUTLEVEL = "">
+	<MvQUERY NAME	= "Merchant"
+			 QUERY	= "{ 'UPDATE ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data
+			 			  SET loading = ? 
+			 			 ' }"
+			 FIELDS	= "l.loading">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00104', g.MvQUERY_Error ) }">
+	</MvIF>
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "get_list_id" PARAMETERS = "" STANDARDOUTPUTLEVEL = "">
+
+	<MvOPENVIEW NAME	= "Merchant"
+	 			VIEW	= "LIST"
+			    QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data ' }"
+			    FIELDS	= "">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00105', g.MvQUERY_Error ) }">
+	</MvIF>
+	
+	<MvASSIGN NAME ="l.list_id" VALUE="{ LIST.d.list_id }">
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "LIST">
+	<MvFUNCTIONRETURN VALUE = "{ l.list_id }">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "get_api_key" PARAMETERS = "" STANDARDOUTPUTLEVEL = "">
+	
+	<MvOPENVIEW NAME	= "Merchant"
+	 			VIEW	= "KEY"
+			    QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data ' }"
+			    FIELDS	= "">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00106', g.MvQUERY_Error ) }">
+	</MvIF>
+	
+	<MvASSIGN NAME ="l.api_key" VALUE="{ KEY.d.api_key }">
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "KEY">
+	<MvFUNCTIONRETURN VALUE = "{ l.api_key }">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "get_loading_path" PARAMETERS = "" STANDARDOUTPUTLEVEL = "">
+	
+	<MvOPENVIEW NAME	= "Merchant"
+	 			VIEW	= "LOADING"
+			    QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'MAILCHIMP_Data ' }"
+			    FIELDS	= "">
+	<MvIF EXPR = "{ g.MvQUERY_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00107', g.MvQUERY_Error ) }">
+	</MvIF>
+	
+	<MvASSIGN NAME ="l.loading" VALUE="{ LOADING.d.loading }">
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "LOADING">
+	<MvFUNCTIONRETURN VALUE = "{ l.loading }">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Update_File" PARAMETERS = "file_path, file_contents" STANDARDOUTPUTLEVEL = "">
+	
+	<MvCOMMENT>Need to do error checking </MvCOMMENT>
+	
+	<MvIF EXPR="{ sexists( file_path ) }">
+		<MvASSIGN NAME="l.delete" VALUE="{ sdelete( l.file_path ) }">
+		<MvASSIGN NAME="l.update" VALUE="{ file_create( l.file_path, 'script', l.file_contents ) }">
+	<MvELSE>
+		<MvASSIGN NAME="l.update" VALUE="{ file_create( l.file_path, 'script', l.file_contents ) }">
+	</MvIF>
+
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+
+<MvFUNCTION NAME = "MAILCHIMP_Load_Home" PARAMETERS = "" STANDARDOUTPUTLEVEL = "text, html, compresswhitespace" >
+
+<MvASSIGN NAME = "l.api_key"	VALUE = "{ get_api_key() }">
+
+<MvIF EXPR = "{ NOT ISNULL ( l.api_key ) }">
+	<MvASSIGN NAME="l.response" VALUE="{ Mailchimp_Lists( l.api_key ) }">
+</MvIF>
+
+<script>
+      
+function generate_list_select(api_key,response){
+
+   var data = eval('(' + response + ')');
+
+   var theSelectList = document.getElementById('mc_lists');
+  
+	for(i=0; i <= data.data.length; i++) {
+
+		if (list_id == data.data[i].id){
+
+			AddSelectOption(theSelectList, data.data[i].name,data.data[i].id, true);
+			
+		}else{
+
+			AddSelectOption(theSelectList, data.data[i].name,data.data[i].id, false);
+			
+		}
+
+		 
+	}
+
+} // end generate_lists
+
+
+function AddSelectOption(selectObj, text, value, isSelected) 
+{
+    if (selectObj != null)
+    {
+        selectObj.options[selectObj.options.length] = 
+            new Option(text, value, false, isSelected);
+    }
+}
+
+
+<MvEVAL EXPR="{ 'var api_key = \'' $ l.api_key $ '\';' }">
+<MvEVAL EXPR="{ 'var response = \'' $ l.response $ '\';' }">
+<MvEVAL EXPR="{ 'var list_id = \'' $ g.MAILCHIMP:list_id $ '\';' }">
+
+</script>
+
+	
+<table width="800" border="0" cellspacing="8" style="padding:20px; margin: 0px 40px 20px 40px;" class="tabledetails"> 
+  <tr>
+    <td colspan="3"><input type="button" name="signup" value="Create MailChimp Account" onClick="javascript:window.open('http://eepurl.com/GHRR','Mail Chimp')" /> </td>
+  </tr>
+  <tr>
+    <td width="300" align="right" >Mail Chimp API Key <a href="https://admin.mailchimp.com/account/api-key-popup" target="_blank">(Get Your API Key)</a>:</td>
+    <td colspan="2">
+		<input type="text" name="MAILCHIMP:api_key" value="{ encodeentities( g.MAILCHIMP:api_key ) }" size="40">
+        </td>
+  </tr>
+  
+  <MvIF EXPR = "{ NOT ISNULL( g.MAILCHIMP:api_key ) }">
+  
+	  <tr>
+	    <td align="right">Select List:</td>
+	    <td colspan="2">
+	    	<select id="mc_lists" name="MAILCHIMP:list_id">
+	    		<option value="">Select a List</option>
+	    	</select>
+	    </td>
+	  </tr>
+
+  </MvIF>
+  
+   <tr>
+	<td align="right">Loading Graphic</td>
+    
+    <td width="246">
+    	<input type="text" size=40 name="MAILCHIMP:loading" value="{encodeentities( g.MAILCHIMP:loading)}"> 
+    </td>
+    <td width="88"><a href="JavaScript:PopupFileUpload( 'Image', '', 'MAILCHIMP:loading' );"><img alt="Upload File" border=0 src="{ 'graphics/' $ s.miva_language $ '/admin/upload.gif' }"></a></td>
+</tr>
+  <tr>
+    <td colspan="3">Available Items</td>
+  </tr>
+ 
+  <tr>
+    <td colspan="3">
+    &lt;mvt:item name="mailchimp" param="headtag" /&gt; <br />
+    &lt;mvt:item name="mailchimp" param="textbox" /&gt; <br />
+    &lt;mvt:item name="mailchimp" param="checkbox" /&gt; <br />
+    				
+    </td>
+  </tr>
+</table>
+
+<script>
+	generate_list_select(api_key,response);
+</script>
+
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "MAILCHIMP_Load_Settings" PARAMETERS = "" STANDARDOUTPUTLEVEL = "text, html, compresswhitespace" >
+	
+<MvCOMMENT>HEADTAG</MvCOMMENT>
+
+<table border=0 cellpadding=2 cellspacing = 0 width = "100%">
+  <tr>
+    <td width="8%" valign="top" nowrap> Head Tag: </td>
+    <td width="92%"><MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].DrawTemplateTextArea( 'MAILCHIMP:head:template_code', g.MAILCHIMP:head:template_code, 20, 30 ) }"></td>
+  </tr>
+  <tr>
+    <td nowrap> Notes: </td>
+    <td width="92%"><input type="text" name="MAILCHIMP:head:notes" value="{ encodeentities( g.MAILCHIMP:head:notes ) }" size=40></td>
+  </tr>
+  <tr>
+    <td nowrap> Versions: </td>
+    <td width="92%"><input type="hidden" name="MAILCHIMP:head:template_recall" value=0>
+      <input type="hidden" name="MAILCHIMP:head:template_clear_history" value=0>
+      <MvHIDE FIELDS = "g.MAILCHIMP:head:template_version">
+      <MvEVAL EXPR = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_ManagedTemplate_Version_Select( g.MAILCHIMP:head_id, 'MAILCHIMP:head:template_version_selected', g.MAILCHIMP:head:template_version_selected ) }">
+      <a href="#" onClick="{ 'Toggle( \'' $ 'MAILCHIMP:head:template_recall' $ '\', 1 ); return false;' }">Recall</a> <a href="#" onClick="{ 'Toggle_Prompt( \'Are you sure you wish to delete all saved configuration settings for the head tag template?\\r\\nThis action cannot be undone.\', \'MAILCHIMP:head:template_clear_history' $ '\', 1 ); return false;' }">Clear History</a></td>
+  </tr>
+</table>
+
+<MvCOMMENT>CSS</MvCOMMENT>
+
+<table border=0 cellpadding=2 cellspacing = 0 width = "100%">
+  <tr>
+    <td width="8%" valign="top" nowrap> CSS Stylesheet: </td>
+    <td width="92%"><MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].DrawTemplateTextArea( 'MAILCHIMP:css:template_code', g.MAILCHIMP:css:template_code, 20, 30 ) }"></td>
+  </tr>
+  <tr>
+    <td nowrap> Notes: </td>
+    <td width="92%"><input type="text" name="MAILCHIMP:css:notes" value="{ encodeentities( g.MAILCHIMP:css:notes ) }" size=40></td>
+  </tr>
+  <tr>
+    <td nowrap> Versions: </td>
+    <td width="92%"><input type="hidden" name="MAILCHIMP:css:template_recall" value=0>
+      <input type="hidden" name="MAILCHIMP:css:template_clear_history" value=0>
+      <MvHIDE FIELDS = "g.MAILCHIMP:css:template_version">
+      <MvEVAL EXPR = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_ManagedTemplate_Version_Select( g.MAILCHIMP:css_id, 'MAILCHIMP:css:template_version_selected', g.MAILCHIMP:css:template_version_selected ) }">
+      <a href="#" onClick="{ 'Toggle( \'' $ 'MAILCHIMP:css:template_recall' $ '\', 1 ); return false;' }">Recall</a> <a href="#" onClick="{ 'Toggle_Prompt( \'Are you sure you wish to delete all saved configuration settings the css template?\\r\\nThis action cannot be undone.\', \'MAILCHIMP:css:template_clear_history' $ '\', 1 ); return false;' }">Clear History</a></td>
+  </tr>
+</table>
+
+<br /><br />
+<MvCOMMENT>JS</MvCOMMENT>
+<table border=0 cellpadding=2 cellspacing = 0 width = "100%">
+  <tr>
+    <td width="8%" valign="top" nowrap> JavaScript: </td>
+    <td width="92%"><MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].DrawTemplateTextArea( 'MAILCHIMP:js:template_code', g.MAILCHIMP:js:template_code, 20, 30 ) }"></td>
+  </tr>
+  <tr>
+    <td nowrap> Notes: </td>
+    <td width="92%"><input type="text" name="MAILCHIMP:js:notes" value="{ encodeentities( g.MAILCHIMP:js:notes ) }" size=40></td>
+  </tr>
+  <tr>
+    <td nowrap> Versions: </td>
+    <td width="92%"><input type="hidden" name="MAILCHIMP:js:template_recall" value=0>
+      <input type="hidden" name="MAILCHIMP:js:template_clear_history" value=0>
+      <MvHIDE FIELDS = "g.MAILCHIMP:js:template_version">
+      <MvEVAL EXPR = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_ManagedTemplate_Version_Select( g.MAILCHIMP:js_id, 'MAILCHIMP:js:template_version_selected', g.MAILCHIMP:js:template_version_selected ) }">
+      <a href="#" onClick="{ 'Toggle( \'' $ 'MAILCHIMP:js:template_recall' $ '\', 1 ); return false;' }">Recall</a> <a href="#" onClick="{ 'Toggle_Prompt( \'Are you sure you wish to delete all saved configuration settings the JS template?\\r\\nThis action cannot be undone.\', \'MAILCHIMP:js:template_clear_history' $ '\', 1 ); return false;' }">Clear History</a></td>
+  </tr>
+</table>
+
+<br /><br />
+<MvCOMMENT>Textbox</MvCOMMENT>
+	<table border=0 cellpadding=2 cellspacing = 0 width = "100%">
+  <tr>
+    <td width="8%" valign="top" nowrap> Checkbox HTML: </td>
+    <td width="92%"><MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].DrawTemplateTextArea( 'MAILCHIMP:text:template_code', g.MAILCHIMP:text:template_code, 20, 30 ) }"></td>
+  </tr>
+  <tr>
+    <td nowrap> Notes: </td>
+    <td width="92%"><input type="text" name="MAILCHIMP:text:notes" value="{ encodeentities( g.MAILCHIMP:text:notes ) }" size=40></td>
+  </tr>
+  <tr>
+    <td nowrap> Versions: </td>
+    <td width="92%"><input type="hidden" name="MAILCHIMP:text:template_recall" value=0>
+      <input type="hidden" name="MAILCHIMP:text:template_clear_history" value=0>
+      <MvHIDE FIELDS = "g.MAILCHIMP:text:template_version">
+      <MvEVAL EXPR = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_ManagedTemplate_Version_Select( g.MAILCHIMP:text_id, 'MAILCHIMP:text:template_version_selected', g.MAILCHIMP:text:template_version_selected ) }">
+      <a href="#" onClick="{ 'Toggle( \'' $ 'MAILCHIMP:text:template_recall' $ '\', 1 ); return false;' }">Recall</a> <a href="#" onClick="{ 'Toggle_Prompt( \'Are you sure you wish to delete all saved configuration settings the Textbox template?\\r\\nThis action cannot be undone.\', \'MAILCHIMP:text:template_clear_history' $ '\', 1 ); return false;' }">Clear History</a></td>
+  </tr>
+</table>
+
+<br /><br />
+<MvCOMMENT>Checkbox</MvCOMMENT>
+	<table border=0 cellpadding=2 cellspacing = 0 width = "100%">
+  <tr>
+    <td width="8%" valign="top" nowrap> Textbox HTML: </td>
+    <td width="92%"><MvEVAL EXPR = "{ [ g.Module_Library_Utilities ].DrawTemplateTextArea( 'MAILCHIMP:check:template_code', g.MAILCHIMP:check:template_code, 20, 30 ) }"></td>
+  </tr>
+  <tr>
+    <td nowrap> Notes: </td>
+    <td width="92%"><input type="text" name="MAILCHIMP:check:notes" value="{ encodeentities( g.MAILCHIMP:check:notes ) }" size=40></td>
+  </tr>
+  <tr>
+    <td nowrap> Versions: </td>
+    <td width="92%"><input type="hidden" name="MAILCHIMP:check:template_recall" value=0>
+      <input type="hidden" name="MAILCHIMP:check:template_clear_history" value=0>
+      <MvHIDE FIELDS = "g.MAILCHIMP:check:template_version">
+      <MvEVAL EXPR = "{ [ g.Module_Feature_TUI_MGR ].TemplateManager_ManagedTemplate_Version_Select( g.MAILCHIMP:check_id, 'MAILCHIMP:check:template_version_selected', g.MAILCHIMP:check:template_version_selected ) }">
+      <a href="#" onClick="{ 'Toggle( \'' $ 'MAILCHIMP:check:template_recall' $ '\', 1 ); return false;' }">Recall</a> <a href="#" onClick="{ 'Toggle_Prompt( \'Are you sure you wish to delete all saved configuration settings the checkbox html template?\\r\\nThis action cannot be undone.\', \'MAILCHIMP:check:template_clear_history' $ '\', 1 ); return false;' }">Clear History</a></td>
+  </tr>
+</table>
+	
+
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+	<MvCOMMENT>
+		Custom Functions to parse Ajax call parameters and do Mail Chimp API Calls.
+	</MvCOMMENT>
+	    
+    <MvASSIGN NAME = "g.action" VALUE = "{ s.arg2 }">
+	<MvASSIGN NAME = "g.action"  VALUE = "{ gettoken(g.action, '&', 1) }">
+	<MvASSIGN NAME = "g.action"  VALUE = "{ gettoken(g.action, '=', 2) }">
+	
+
+	<MvIF EXPR = "{ g.action EQ 'subscribe' }">
+	
+		<MvIF EXPR = "{ Parse_URL_Parameters_Subscribe(s.query_string) }">
+		
+			<MvEVAL EXPR = "{ Send_Subscriber(g.api_key, g.list_id, g.email_address, g.fname, g.lname )}">
+			
+		</MvIF>
+		
+	</MvIF>
+	
+	
+	<MvIF EXPR = "{ g.action EQ 'unsubscribe' }">
+	
+		<MvIF EXPR = "{ Parse_URL_Parameters_Unsubscribe(s.query_string) }">
+		
+			<MvEVAL EXPR = "{ Unsubscribe_Member(g.api_key, g.list_id, g.email_address, g.delete, g.send_goodbye, g.send_notify )}">
+			
+		</MvIF>
+		
+	</MvIF>
+
+
+	<MvIF EXPR = "{ g.action EQ 'lists' }">
+	
+		
+			<MvEVAL EXPR = "{ Mailchimp_Lists(l.api_key)}">
+			
+		
+	</MvIF>
+	
+
+	<MvFUNCTION NAME = "Parse_URL_Parameters_Subscribe" PARAMETERS = "url" STANDARDOUTPUTLEVEL = "compresswhitespace">
+	
+	<MvASSIGN NAME = "g.api_key"  VALUE = "{ gettoken(s.query_string, '&', 2) }">
+	<MvASSIGN NAME = "g.api_key"  VALUE = "{ encodeentities( gettoken(g.api_key, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.list_id"  VALUE = "{ gettoken(s.query_string, '&', 3) }">
+	<MvASSIGN NAME = "g.list_id"  VALUE = "{ encodeentities( gettoken(g.list_id, '=', 2) ) }">
+	
+	
+	<MvASSIGN NAME = "g.email_address"  VALUE = "{ gettoken(s.query_string, '&', 4) }">
+	<MvASSIGN NAME = "g.email_address"  VALUE = "{ encodeentities( gettoken(g.email_address, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.fname"  VALUE = "{ gettoken(s.query_string, '&', 5) }">
+	<MvASSIGN NAME = "g.fname"  VALUE = "{ encodeentities( gettoken(g.fname, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.lname"  VALUE = "{ gettoken(s.query_string, '&', 6) }">
+	<MvASSIGN NAME = "g.lname"  VALUE = "{ encodeentities( gettoken(g.lname, '=', 2) ) }">
+	
+	<MvFUNCTIONRETURN VALUE = 1>
+	
+	</MvFUNCTION>
+	
+	<MvFUNCTION NAME = "Parse_URL_Parameters_Unsubscribe" PARAMETERS = "url" STANDARDOUTPUTLEVEL = "compresswhitespace">
+	
+	<MvASSIGN NAME = "g.api_key"  VALUE = "{ gettoken(s.query_string, '&', 2) }">
+	<MvASSIGN NAME = "g.api_key"  VALUE = "{ encodeentities( gettoken(g.api_key, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.list_id"  VALUE = "{ gettoken(s.query_string, '&', 3) }">
+	<MvASSIGN NAME = "g.list_id"  VALUE = "{ encodeentities( gettoken(g.list_id, '=', 2) ) }">
+	
+	
+	<MvASSIGN NAME = "g.email_address"  VALUE = "{ gettoken(s.query_string, '&', 4) }">
+	<MvASSIGN NAME = "g.email_address"  VALUE = "{ encodeentities( gettoken(g.email_address, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.delete"  VALUE = "{ gettoken(s.query_string, '&', 5) }">
+	<MvASSIGN NAME = "g.delete"  VALUE = "{ encodeentities( gettoken(g.delete, '=', 2) ) }">
+	
+
+	<MvASSIGN NAME = "g.send_goodbye"  VALUE = "{ gettoken(s.query_string, '&', 6) }">
+	<MvASSIGN NAME = "g.send_goodbye"  VALUE = "{ encodeentities( gettoken(g.send_goodbye, '=', 2) ) }">
+	
+	<MvASSIGN NAME = "g.send_notify"  VALUE = "{ gettoken(s.query_string, '&', 7) }">
+	<MvASSIGN NAME = "g.send_notify"  VALUE = "{ encodeentities( gettoken(g.send_notify, '=', 2) ) }">
+	
+	<MvFUNCTIONRETURN VALUE = 1>
+	
+	</MvFUNCTION>
+	
+	
+	<MvFUNCTION NAME = "Send_Subscriber" PARAMETERS = "api_key, list_id, email_address, fname, lname" STANDARDOUTPUTLEVEL = "text, html, compresswhitespace">
+	
+	<MvASSIGN NAME = "l.length" 	VALUE="{ len(l.api_key) }">
+	<MvASSIGN NAME = "l.datacenter" VALUE="{ substring( l.api_key, l.length-2, 3 ) }">
+
+	
+	<MvIF EXPR="{ g.secure }">
+		<MvASSIGN NAME = "l.prefix" 	VALUE="https://">
+	<MvELSE>
+		<MvASSIGN NAME = "l.prefix" 	VALUE="http://">
+	</MvIF>
+	
+		<MvASSIGN NAME = "l.url"	VALUE = "{ l.prefix $ l.datacenter $ '.api.mailchimp.com/1.3/?method=listSubscribe&apikey=' $ l.api_key
+											$ '&id=' $ encodeattribute( l.list_id )
+											$ '&email_address=' $ encodeattribute( l.email_address ) 
+											$ '&merge_vars[FNAME]=' $ encodeattribute( l.fname )
+											$ '&merge_vars[LNAME]=' $ encodeattribute( l.lname )
+											$ '&merge_vars[INTERESTS]='
+											$ '&double_optin=false&output=json' }">
+	
+		<MvCALL ACTION = "{ l.url }" METHOD = "GET" > 
+			<MvASSIGN NAME = "l.return_value" VALUE ="{ l.return_value $ s.callvalue }">
+		</MvCALL>
+
+		<MvEVAL EXPR="{ clean_data( l.return_value ) }">
+		
+		
+</MvFUNCTION>
+
+
+	<MvFUNCTION NAME = "Unsubscribe_Member" PARAMETERS = "api_key, list_id, email_address, delete, send_goodbye, send_notify" STANDARDOUTPUTLEVEL = "text, html, compresswhitespace">
+	
+	<MvASSIGN NAME = "l.length" 	VALUE="{ len(l.api_key) }">
+	<MvASSIGN NAME = "l.datacenter" VALUE="{ substring( l.api_key, l.length-2, 3 ) }">
+	
+	<MvIF EXPR="{ g.secure }">
+		<MvASSIGN NAME = "l.prefix" 	VALUE="https://">
+	<MvELSE>
+		<MvASSIGN NAME = "l.prefix" 	VALUE="http://">
+	</MvIF>
+	
+		<MvASSIGN NAME = "l.url"	VALUE = "{ l.prefix $  l.datacenter $ '.api.mailchimp.com/1.3/?method=listUnsubscribe&apikey=' $ l.api_key
+											$ '&id=' $ encodeattribute( l.list_id )
+											$ '&email_address=' $ encodeattribute( l.email_address )
+											$ '&delete_member=' $ encodeattribute( l.delete )
+											$ '&send_goodbye='  $ encodeattribute( l.send_goodbye )
+											$ '&send_notify='	$ encodeattribute( l.send_notify )
+											$ '&output=json' 
+											}">
+	
+		
+		<MvCALL ACTION = "{ l.url }" METHOD = "GET" > 
+			<MvASSIGN NAME = "l.return_value" VALUE ="{ l.return_value $ s.callvalue }">
+		</MvCALL>
+
+		<MvEVAL EXPR="{ clean_data( l.return_value ) }">
+		
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "clean_data" PARAMETERS = "data" STANDARDOUTPUTLEVEL = "compresswhitespace">
+	
+		<MvASSIGN NAME = "l.data" VALUE ="{ glosub(l.data,asciichar(10),'') }">
+		<MvASSIGN NAME = "l.data" VALUE ="{ decodeattribute( l.data ) }">
+		<MvASSIGN NAME = "l.data" VALUE ="{ trim( l.data ) }">
+ 
+       <MvASSIGN NAME = "l.clean_data" VALUE ="{ l.data }">
+
+	<MvFUNCTIONRETURN VALUE = "{ l.clean_data }">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "Mailchimp_Lists" PARAMETERS = "api_key" STANDARDOUTPUTLEVEL = "text, html, compresswhitespace">
+	
+	<MvASSIGN NAME = "l.length" 	VALUE="{ len(l.api_key) }">
+	<MvASSIGN NAME = "l.datacenter" VALUE="{ substring( l.api_key, l.length-2, 3 ) }">
+	
+	<MvIF EXPR="{ g.secure }">
+		<MvASSIGN NAME = "l.prefix" 	VALUE="https://">
+	<MvELSE>
+		<MvASSIGN NAME = "l.prefix" 	VALUE="http://">
+	</MvIF>
+	
+		<MvASSIGN NAME = "l.url"	VALUE = "{ l.prefix $  l.datacenter $ '.api.mailchimp.com/1.3/?method=lists&apikey=' $ l.api_key
+											$ '&output=json' 
+											}">
+	
+		
+		<MvCALL ACTION = "{ l.url }" METHOD = "GET" > 
+			<MvASSIGN NAME ="l.response" VALUE = "{ s.callvalue }">
+		</MvCALL>
+
+		
+	<MvFUNCTIONRETURN VALUE = "{ trim(l.response) }">
+</MvFUNCTION>
+
+
+<MvCOMMENT>Order Fuilfillment Functions</MvCOMMENT>
+
+<MvFUNCTION NAME = "FulfillmentModule_ProcessOrder" PARAMETERS = "module var, order var" STANDARDOUTPUTLEVEL = "" ERROROUTPUTLEVEL = "runtime">
+
+	<MvASSIGN NAME = "l.api_key"	VALUE = "{ get_api_key() }">
+	<MvASSIGN NAME = "l.null"		VALUE = "">
+	<MvDO FILE = "{ g.Module_Library_Utilities }" NAME = "l.order_date" VALUE = "{ Format_Date( l.order:orderdate, s.miva_language ) }">
+
+	<MvASSIGN NAME = "l.formatted_date" VALUE = "{ [ g.Module_Library_Utilities ].Format_Date( l.order:orderdate, s.miva_language ) }">
+	<MvASSIGN NAME = "l.formatted_time" VALUE = "{ [ g.Module_Library_Utilities ].Format_Time_Short( l.order:orderdate, s.miva_language ) }">
+
+	<MvCOMMENT>Load item information for order</MvCOMMENT>
+	<MvDO FILE = "{ g.Module_Library_DB }" NAME = "l.orderitem_count" VALUE = "{ OrderItemList_Load_Order( l.order:id, l.orderitem ) }">
+
+
+		<MvASSIGN NAME = "l.order_tax" 			VALUE = "{ 0 }">
+		<MvASSIGN NAME = "l.order_shipping" 	VALUE = "{ 0 }">
+
+		
+		<MvCOMMENT> Calculate TAX </MvCOMMENT>
+		<MvDO FILE = "{ g.Module_Library_DB }" NAME = "l.tax_count" VALUE = "{ OrderChargeList_Load_Type( l.order:id, 'TAX', l.ordercharge ) }">
+		
+		<MvASSIGN NAME = "l.ord_chr_pos" VALUE = 1>
+		<MvIF EXPR = "{ l.ord_chr_pos LE l.tax_count }">
+			<MvWHILE EXPR = "{ l.ord_chr_pos LE l.tax_count }">
+				<MvASSIGN NAME = "l.order_tax" VALUE = "{ l.order_tax + l.ordercharge[ l.ord_chr_pos ]:disp_amt }">
+
+				<MvASSIGN NAME = "l.ord_chr_pos" VALUE = "{ l.ord_chr_pos + 1 }">
+			</MvWHILE>
+		</MvIF>
+
+		<MvCOMMENT> Calculate SHIPPING </MvCOMMENT>
+		<MvDO FILE = "{ g.Module_Library_DB }" NAME = "l.shipping_count" VALUE = "{ OrderChargeList_Load_Type( l.order:id, 'SHIPPING', l.ordercharge ) }">
+
+		<MvASSIGN NAME = "l.ord_chr_pos" VALUE = 1>
+		<MvIF EXPR = "{ l.ord_chr_pos LE l.shipping_count }">
+			<MvWHILE EXPR = "{ l.ord_chr_pos LE l.shipping_count }">
+				<MvASSIGN NAME = "l.order_shipping" VALUE = "{ l.order_shipping + l.ordercharge[ l.ord_chr_pos ]:disp_amt }">
+				<MvASSIGN NAME = "l.ord_chr_pos" VALUE = "{ l.ord_chr_pos + 1 }">
+			</MvWHILE>
+		</MvIF>
+
+				<MvASSIGN NAME="l.orderinfo:id" 			INDEX="1" 	VALUE="{ l.order:id }">
+				<MvASSIGN NAME="l.orderinfo:email" 			INDEX="1" 	VALUE="{ l.order:bill_email }">
+				<MvASSIGN NAME="l.orderinfo:total" 			INDEX="1" 	VALUE="{ l.order:total }">
+				<MvASSIGN NAME="l.orderinfo:order_date" 	INDEX="1" 	VALUE="{ l.order_date }">
+				<MvASSIGN NAME="l.orderinfo:shipping" 		INDEX="1" 	VALUE="{ l.order_shipping }">
+				<MvASSIGN NAME="l.orderinfo:tax" 			INDEX="1" 	VALUE="{ l.order_tax }">
+				<MvASSIGN NAME="l.orderinfo:store_id" 		INDEX="1" 	VALUE="{ g.store:code }">
+				<MvASSIGN NAME="l.orderinfo:store_name" 	INDEX="1" 	VALUE="{ g.store:name }">
+				<MvASSIGN NAME="l.orderinfo:plugin_id" 		INDEX="1" 	VALUE="{ '12345' }"> <MvCOMMENT>Plugin Id is not used by MailChimp</MvCOMMENT>
+				<MvASSIGN NAME="l.orderinfo:campaign_id" 	INDEX="1" 	VALUE="{ l.null }">
+				<MvASSIGN NAME="l.orderinfo:date" 			INDEX="1" 	VALUE="{ l.formatted_date }">
+				<MvASSIGN NAME="l.orderinfo:time" 			INDEX="1" 	VALUE="{ l.formatted_time }">
+				
+				
+			<MvASSIGN NAME="l.result" VALUE="{ MailChimp_360(l.api_key,l.orderinfo,l.orderitem) }" >
+
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "MailChimp_360" PARAMETERS = "api_key,orderinfo var,orderitem var" STANDARDOUTPUTLEVEL = "">
+
+	<MvASSIGN NAME = "l.length" 	VALUE="{ len(l.api_key) }">
+	<MvASSIGN NAME = "l.datacenter" VALUE="{ substring( l.api_key, l.length-2, 3 ) }">
+	
+	<MvIF EXPR="{ g.secure }">
+		<MvASSIGN NAME = "l.prefix" 	VALUE="https://">
+	<MvELSE>
+		<MvASSIGN NAME = "l.prefix" 	VALUE="http://">
+	</MvIF>
+
+		<MvASSIGN NAME = "l.url"	VALUE = "{ l.prefix $  l.datacenter $ '.api.mailchimp.com/1.3/?method=ecommOrderAdd&apikey=' $ l.api_key }">
+
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[id]=' $ 				encodeattribute( l.orderinfo:id )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[email]=' $ 			encodeattribute( l.orderinfo:email )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[total]=' $ 			encodeattribute( l.orderinfo:total )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[order_date]=' $ 		encodeattribute( l.orderinfo:order_date )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[shipping]=' $ 		encodeattribute( l.orderinfo:shipping )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[tax]=' $ 			encodeattribute( l.orderinfo:tax ) }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[store_id]=' $ 		encodeattribute( g.store:code ) }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[store_name]=' $ 		encodeattribute( g.store:name ) }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[plugin_id]=' $ 		encodeattribute( '12345' )  }">
+				<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[campaign_id]=' $ 	encodeattribute( g.Request_Cookies:mc_cid )  }">
+				
+				<MvFOREACH ITERATOR = "l.item" ARRAY = "l.orderitem" INDEX = "l.pos">
+
+					<MvASSIGN NAME = "l.category_id"	VALUE = "{ MailChimp_Category_Id_Lookup( l.item:product_id ) }">
+					<MvASSIGN NAME = "l.category_name"	VALUE = "{ MailChimp_Category_Name_Lookup( l.category_id ) }">
+
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][line_num]=' $ encodeattribute( l.item:line_id )  }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][product_id]=' $ encodeattribute( l.item:product_id ) }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][sku]=' $ encodeattribute( l.item:code ) }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][product_name]=' $ encodeattribute( l.item:name )}">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][categoy_id]=' $ encodeattribute( l.category_id )  }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][categoy_name]=' $ encodeattribute( l.category_name ) }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][qty]=' $ encodeattribute( l.item:quantity )  }">
+				    <MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&order[items][' $ l.pos $ '][cost]=' $ encodeattribute( l.item:price )  }">
+				   
+				</MvFOREACH>
+				
+				
+		<MvASSIGN NAME = "l.url"	VALUE = "{ l.url $ '&output=json'   }">	
+
+		<MvCOMMENT> Uncomment to debug
+			<MvEVAL EXPR="{ l.url }">
+		</MvCOMMENT>
+
+
+		<MvCALL ACTION = "{ l.url }" METHOD = "GET" > 
+
+			<MvASSIGN NAME = "l.response" VALUE = "{ s.callvalue }">
+
+		</MvCALL>
+
+		<MvIF EXPR = "{ l.response NE 'true' }"> <MvCOMMENT>Write Error to Log File</MvCOMMENT>
+				
+			<MvASSIGN NAME="l.error_write" VALUE="{ MailChimp_Write_Error_Log('Error: Unable to send ecommerce 360 data to MailChimp: ' $ l.response, l.orderinfo:date, l.orderinfo:time)}">
+
+		</MvIF>
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "MailChimp_Write_Error_Log" PARAMETERS = "error, date, time" STANDARDOUTPUTLEVEL = "">
+
+	<MvASSIGN NAME = "l.file_path " VALUE = "mailchimp_error.log">
+	<MvASSIGN NAME = "l.email_structure:crlf" 		VALUE = "{ asciichar(13) $ asciichar(10) }">
+	<MvASSIGN NAME = "l.file_contents" VALUE="{ l.date $ ' ' $ l.time $ ' ' $ l.error $ l.email_structure:crlf }">
+		
+		<MvIF EXPR="{ fexists( l.file_path ) }">
+			<MvASSIGN NAME="l.update" VALUE="{ file_append( l.file_path, 'data', l.file_contents ) }">
+		<MvELSE>
+			<MvASSIGN NAME="l.update" VALUE="{ file_create( l.file_path, 'data', l.file_contents ) }">
+		</MvIF>
+
+	<MvFUNCTIONRETURN VALUE = 1>
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "MailChimp_Category_Id_Lookup" PARAMETERS = "product_id" STANDARDOUTPUTLEVEL = "">
+
+	<MvOPENVIEW NAME	= "Merchant"
+			    VIEW	= "Cat"
+				QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'CategoryXProduct' $
+							' WHERE product_id = ?' }"
+				FIELDS	= "l.product_id">
+
+	<MvIF EXPR = "{ g.MvOPENVIEW_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00108', g.MvOPENVIEW_Error ) }">
+	</MvIF>
+
+	<MvASSIGN NAME = "l.cat_count" VALUE = "0">
+
+	<MvWHILE EXPR = "{ NOT Cat.d.EOF }">
+	    <MvASSIGN NAME = "l.cat_count" VALUE = "{ l.cat_count + 1 }">
+	    	
+	    	<MvIF EXPR = "{ l.cat_count EQ 1 }">
+	   
+	   			<MvASSIGN NAME = "l.category_id" VALUE = "{ Cat.d.cat_id }">
+	   			<MvWHILESTOP>
+	   		</MvIF>
+
+	    <MvSKIP NAME = "Merchant" VIEW = "Cat" ROWS = 1>
+	</MvWHILE>
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "Cat" >
+
+	<MvFUNCTIONRETURN VALUE = "{ l.category_id }">
+</MvFUNCTION>
+
+
+<MvFUNCTION NAME = "MailChimp_Category_Name_Lookup" PARAMETERS = "category_id" STANDARDOUTPUTLEVEL = "">
+
+	<MvOPENVIEW NAME	= "Merchant"
+			    VIEW	= "Category"
+				QUERY	= "{ 'SELECT * FROM ' $ g.Store_Table_Prefix $ 'Categories' $
+							' WHERE id = ?' }"
+				FIELDS	= "l.category_id">
+
+	<MvIF EXPR = "{ g.MvOPENVIEW_Error }">
+		<MvFUNCTIONRETURN VALUE = "{ [ g.Module_Library_Utilities ].Error( 'MER-MC-00109', g.MvOPENVIEW_Error ) }">
+	</MvIF>
+
+		<MvASSIGN NAME = "l.category_name" VALUE = "{ Category.d.name }">
+
+	<MvCLOSEVIEW NAME = "Merchant" VIEW = "Category" >
+
+	<MvFUNCTIONRETURN VALUE = "{ l.category_name }">
+</MvFUNCTION>
