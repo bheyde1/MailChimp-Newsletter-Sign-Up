@@ -498,8 +498,9 @@ bheyde@mivamerchant.com
 		</MvIF>
 
 
-
+	<span id="version">Version: <MvEVAL EXPR ="{ l.module:version }"></span>
 	<h2>MailChimp Newsletter Signup</h2>
+	
 
 		<INPUT TYPE = "hidden" NAME = "MAILCHIMP_Screen" VALUE = "{ g.MAILCHIMP_Screen }">
 
@@ -510,10 +511,33 @@ bheyde@mivamerchant.com
 		}
 		//-->
 		</SCRIPT>
+
+		<style>
+			#module-links a{
+
+				padding-left:5px;
+				padding-right:5px;
+			}
+
+			#version{
+				font-size:10px;
+			}
+			
+		</style>
 		
-		<div style="padding:0 0 20px 40px;">	
-		<A HREF = "javascript:SetScreen( '' );SubmitForm( 'SMOD', '' );">Home</A>&nbsp;&nbsp;&nbsp;
-		<A HREF = "javascript:SetScreen( 'SETTINGS' );SubmitForm( 'SMOD', '' );">Advanced Settings</A>&nbsp;&nbsp;&nbsp;
+		<div style="width:840px;">
+
+			<div style="padding:0 0 20px 40px; width:200px; float:left;">	
+				<A HREF = "javascript:SetScreen( '' );SubmitForm( 'SMOD', '' );">Home</A>&nbsp;&nbsp;&nbsp;
+				<A HREF = "javascript:SetScreen( 'SETTINGS' );SubmitForm( 'SMOD', '' );">Advanced Settings</A>&nbsp;&nbsp;&nbsp;
+			</div>
+
+			<div style="padding:0 0 20px 40px; float:right;" id="module-links">	
+				<a href="http://www.mivamerchant.com/mailchimp/module-docs" target="_blank">Module Documentation</a> 
+				<a href="http://www.mivamerchant.com/mailchimp/mailchimp-videos" target="_blank">Video Tutorials</a> 
+				<a href="http://www.mivamerchant.com/mailchimp/updates" target="_blank">Updates</a> 
+			</div>
+		
 		</div>
 		
 
